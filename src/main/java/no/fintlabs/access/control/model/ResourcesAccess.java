@@ -1,4 +1,4 @@
-package no.fintlabs;
+package no.fintlabs.access.control.model;
 
 import java.util.List;
 
