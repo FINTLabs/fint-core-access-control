@@ -12,26 +12,25 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collection;
 
 @RestController
-@RequestMapping("/package/{organization}")
+@RequestMapping("{clientOrAdapterName}")
 @RequiredArgsConstructor
 public class AccessController {
 
     private final AccessCache accessCache;
 
     @GetMapping
-    public Collection<PackageAccess> getPackageAccess(@PathVariable String organization) {
+    public Collection<PackageAccess> getPackageAccess(@PathVariable String clientOrAdapterName) {
         return accessCache.getPackageAccesses();
     }
 
-    @GetMapping("/{componentName}")
-    public Collection<ResourcesAccess> getResourceAccess(@PathVariable String componentName, @PathVariable String organization) {
-        return accessCache.getResourceAccessByComponent(componentName);
+    @GetMapping("/{component}")
+    public Collection<ResourcesAccess> getResourceAccess(@PathVariable String clientOrAdapterName, @PathVariable String component) {
+        return accessCache.getResourceAccessByComponent(component);
     }
 
-    @GetMapping("/{componentName}/{resource}")
-    public Collection<FieldAccess> getFieldAccess(@PathVariable String componentName, @PathVariable String resource, @PathVariable String organization) {
-        return accessCache.getFieldAccessByComponentAndResource(componentName, resource);
+    @GetMapping("/{component}/{resource}")
+    public Collection<FieldAccess> getFieldAccess(@PathVariable String clientOrAdapterName, @PathVariable String component, @PathVariable String resource) {
+        return accessCache.getFieldAccessByComponentAndResource(component, resource);
     }
-
 
 }
