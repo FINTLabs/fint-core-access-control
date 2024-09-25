@@ -5,7 +5,7 @@ import java.util.List;
 public record ResourcesAccess(
         String name,
         List<FieldAccess> fields,
-        Multiplicity multiplicity,
+        ReadingOption readingOption,
         boolean enabled,
         boolean isWriteable
 ) {
