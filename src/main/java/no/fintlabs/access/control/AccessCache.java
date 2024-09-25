@@ -1,25 +1,33 @@
 package no.fintlabs.access.control;
 
+import lombok.Getter;
 import no.fintlabs.access.control.metamodel.Metamodel;
 import no.fintlabs.access.control.metamodel.MetamodelRepository;
 import no.fintlabs.access.control.model.*;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class AccessCache {
 
     private final MetamodelRepository metamodelRepository;
+
+    @Getter
     private final List<PackageAccess> packageAccesses = new ArrayList<>();
     private final Map<String, Map<String, ResourcesAccess>> resourceAccessMap = new HashMap<>();
 
     public AccessCache(MetamodelRepository metamodelRepository) {
         this.metamodelRepository = metamodelRepository;
         initializeCache();
+    }
+
+    public Collection<ResourcesAccess> getResourceAccessByComponent(String componentName) {
+        return resourceAccessMap.getOrDefault(componentName, new HashMap<>()).values();
+    }
+
+    public Collection<FieldAccess> getFieldAccessByComponentAndResource(String componentName, String resource) {
+        return resourceAccessMap.getOrDefault(componentName, new HashMap<>()).get(resource).fields();
     }
 
     private void initializeCache() {
@@ -42,5 +50,4 @@ public class AccessCache {
     private String createComponentName(Metamodel metamodel) {
         return "%s-%s".formatted(metamodel.domainName(), metamodel.packageName());
     }
-
 }
