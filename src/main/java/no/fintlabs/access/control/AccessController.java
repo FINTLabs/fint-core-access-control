@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collection;
 
 @RestController
-@RequestMapping("{clientOrAdapterName}")
+@RequestMapping("/access/{clientOrAdapterName}")
 @RequiredArgsConstructor
 public class AccessController {
 
