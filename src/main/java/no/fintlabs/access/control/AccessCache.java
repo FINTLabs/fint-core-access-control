@@ -14,7 +14,7 @@ public class AccessCache {
     private final MetamodelRepository metamodelRepository;
 
     @Getter
-    private final List<PackageAccess> packageAccesses = new ArrayList<>();
+    private final Set<PackageAccess> packageAccesses = new HashSet<>();
     private final Map<String, Map<String, ResourcesAccess>> resourceAccessMap = new HashMap<>();
 
     public AccessCache(MetamodelRepository metamodelRepository) {
