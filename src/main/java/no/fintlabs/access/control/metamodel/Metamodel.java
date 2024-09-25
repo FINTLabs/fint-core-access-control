@@ -1,4 +1,4 @@
-package no.fintlabs.access.control;
+package no.fintlabs.access.control.metamodel;
 
 import java.util.List;
 

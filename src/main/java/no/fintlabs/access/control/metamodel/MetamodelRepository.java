@@ -1,4 +1,4 @@
-package no.fintlabs.access.control;
+package no.fintlabs.access.control.metamodel;
 
 import lombok.Getter;
 import org.springframework.core.ParameterizedTypeReference;

@@ -1,5 +1,7 @@
 package no.fintlabs.access.control;
 
+import no.fintlabs.access.control.metamodel.Metamodel;
+import no.fintlabs.access.control.metamodel.MetamodelRepository;
 import no.fintlabs.access.control.model.*;
 import org.springframework.stereotype.Component;
 
