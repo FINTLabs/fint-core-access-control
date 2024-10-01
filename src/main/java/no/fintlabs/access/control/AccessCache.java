@@ -48,6 +48,6 @@ public class AccessCache {
     }
 
     private String createComponentName(Metamodel metamodel) {
-        return "%s-%s".formatted(metamodel.domainName(), metamodel.packageName());
+        return "%s_%s".formatted(metamodel.domainName(), metamodel.packageName());
     }
 }
