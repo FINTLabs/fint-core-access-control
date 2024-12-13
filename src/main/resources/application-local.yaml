@@ -1,2 +1,16 @@
 fint:
   metamodel-url: http://localhost:8082
+  database:
+    username: postgres
+    password: postgres
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/test
+    username: postgres
+    password: postgres
+    hikari:
+      schema: fintlabs_no
+  jpa:
+    hibernate:
+      ddl-auto: validate
