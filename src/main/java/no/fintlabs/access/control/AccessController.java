@@ -18,9 +18,11 @@ public class AccessController {
 
     private final AccessCache accessCache;
 
+    private final AccessService accessService;
+
     @GetMapping
     public Collection<PackageAccess> getPackageAccess(@PathVariable String clientOrAdapterName) {
-        return accessCache.getPackageAccesses();
+        return accessService.getPackageAccess(clientOrAdapterName);
     }
 
     @GetMapping("/{component}")

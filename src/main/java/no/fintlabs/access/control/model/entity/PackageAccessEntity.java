@@ -34,6 +34,6 @@ public class PackageAccessEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "username", nullable = false)
-    private ClientEntity username;
+    private ClientEntity client;
 
 }
