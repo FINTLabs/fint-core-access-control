@@ -5,9 +5,13 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.RestClient;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
+// TODO: Should be named gateway instead of repository
 @Repository
 public class MetamodelRepository {
 
@@ -19,6 +23,12 @@ public class MetamodelRepository {
     public MetamodelRepository(RestClient restClient) {
         this.restClient = restClient;
         this.metamodels = fetchMetamodels();
+    }
+
+    public Set<Package> getPackages() {
+        return metamodels.stream()
+                .map(model -> new Package(model.domainName(), model.packageName()))
+                .collect(Collectors.toSet());
     }
 
     private List<Metamodel> fetchMetamodels() {

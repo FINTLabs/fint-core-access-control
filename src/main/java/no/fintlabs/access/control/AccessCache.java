@@ -15,14 +15,14 @@ public class AccessCache {
 
     @Getter
     private final Set<PackageAccess> packageAccesses = new HashSet<>();
-    private final Map<String, Map<String, ResourcesAccess>> resourceAccessMap = new HashMap<>();
+    private final Map<String, Map<String, ResourceAccess>> resourceAccessMap = new HashMap<>();
 
     public AccessCache(MetamodelRepository metamodelRepository) {
         this.metamodelRepository = metamodelRepository;
         initializeCache();
     }
 
-    public Collection<ResourcesAccess> getResourceAccessByComponent(String componentName) {
+    public Collection<ResourceAccess> getResourceAccessByComponent(String componentName) {
         return resourceAccessMap.getOrDefault(componentName, new HashMap<>()).values();
     }
 
@@ -41,10 +41,10 @@ public class AccessCache {
         });
     }
 
-    private ResourcesAccess createResourceAccess(Metamodel metamodel) {
+    private ResourceAccess createResourceAccess(Metamodel metamodel) {
         List<FieldAccess> fieldAccesses = new ArrayList<>();
         metamodel.fields().forEach(field -> fieldAccesses.add(new FieldAccess(field, new ArrayList<>(), false)));
-        return new ResourcesAccess(metamodel.resourceName(), fieldAccesses, ReadingOption.MULTIPLE, false, metamodel.writeable());
+        return new ResourceAccess(metamodel.resourceName(), fieldAccesses, ReadingOption.MULTIPLE, false, metamodel.writeable());
     }
 
     private String createComponentName(Metamodel metamodel) {

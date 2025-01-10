@@ -1,9 +1,11 @@
-package no.fintlabs.access.control;
+package no.fintlabs.access.control.controller;
 
 import lombok.RequiredArgsConstructor;
+import no.fintlabs.access.control.AccessCache;
+import no.fintlabs.access.control.service.AccessService;
 import no.fintlabs.access.control.model.dto.FieldAccess;
 import no.fintlabs.access.control.model.dto.PackageAccess;
-import no.fintlabs.access.control.model.dto.ResourcesAccess;
+import no.fintlabs.access.control.model.dto.ResourceAccess;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +28,7 @@ public class AccessController {
     }
 
     @GetMapping("/{component}")
-    public Collection<ResourcesAccess> getResourceAccess(@PathVariable String clientOrAdapterName, @PathVariable String component) {
+    public Collection<ResourceAccess> getResourceAccess(@PathVariable String clientOrAdapterName, @PathVariable String component) {
         return accessCache.getResourceAccessByComponent(component);
     }
 
