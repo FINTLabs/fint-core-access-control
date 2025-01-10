@@ -1,9 +1,9 @@
 package no.fintlabs.access.control;
 
 import lombok.Getter;
-import no.fintlabs.access.control.metamodel.Metamodel;
-import no.fintlabs.access.control.metamodel.MetamodelRepository;
-import no.fintlabs.access.control.model.*;
+import no.fintlabs.access.control.model.dto.*;
+import no.fintlabs.access.control.model.metamodel.Metamodel;
+import no.fintlabs.access.control.model.metamodel.MetamodelRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.*;

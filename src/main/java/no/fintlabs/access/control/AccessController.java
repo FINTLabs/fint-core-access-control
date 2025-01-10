@@ -1,9 +1,9 @@
 package no.fintlabs.access.control;
 
 import lombok.RequiredArgsConstructor;
-import no.fintlabs.access.control.model.FieldAccess;
-import no.fintlabs.access.control.model.PackageAccess;
-import no.fintlabs.access.control.model.ResourcesAccess;
+import no.fintlabs.access.control.model.dto.FieldAccess;
+import no.fintlabs.access.control.model.dto.PackageAccess;
+import no.fintlabs.access.control.model.dto.ResourcesAccess;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;

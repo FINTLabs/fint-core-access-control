@@ -1,4 +1,5 @@
-package no.fintlabs.access.control.model;
+package no.fintlabs.access.control.model.dto;
+
 
 import java.util.List;
 
