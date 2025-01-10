@@ -17,21 +17,17 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class AccessService {
+public class PackageAccessService {
 
     private final ClientEntityRepository clientEntityRepository;
-
     private final PackageAccessEntityRepository packageAccessEntityRepository;
-
     private final ResourceAccessEntityRepository resourceAccessEntityRepository;
-
     private final MetamodelRepository metamodelRepository;
 
     public Collection<PackageAccess> getPackageAccess(String clientOrAdapterName) {
 
         Optional<ClientEntity> clientEntity = clientEntityRepository.findById(clientOrAdapterName);
-        Collection<PackageAccessEntity> entities = clientEntity.isEmpty() ? Collections.emptyList() : packageAccessEntityRepository.findByClient(clientEntity.get());
-
+        Collection<PackageAccessEntity> entities = getPackageAccessEntities(clientEntity);
         List<PackageAccess> result = new ArrayList<>();
 
         for (Package aPackage : metamodelRepository.getPackages()) {
@@ -47,11 +43,15 @@ public class AccessService {
                 }
             }
 
-            PackageAccess dto = new PackageAccess(aPackage.domainName(), aPackage.packageName(), status);
-            result.add(dto);
+            result.add(new PackageAccess(aPackage.domainName(), aPackage.packageName(), status));
         }
 
         return result;
+    }
+
+    private Collection<PackageAccessEntity> getPackageAccessEntities(Optional<ClientEntity> clientEntity) {
+        if (clientEntity.isEmpty()) return Collections.emptyList();
+        return packageAccessEntityRepository.findByClient(clientEntity.get());
     }
 
     private Optional<PackageAccessEntity> findPackageAccessEntity(Package aPackage, Collection<PackageAccessEntity> entities) {
