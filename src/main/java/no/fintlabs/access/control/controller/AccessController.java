@@ -6,6 +6,7 @@ import no.fintlabs.access.control.service.PackageAccessService;
 import no.fintlabs.access.control.model.dto.FieldAccess;
 import no.fintlabs.access.control.model.dto.PackageAccess;
 import no.fintlabs.access.control.model.dto.ResourceAccess;
+import no.fintlabs.access.control.service.ResourceAccessService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ public class AccessController {
     private final AccessCache accessCache;
 
     private final PackageAccessService packageAccessService;
+    private final ResourceAccessService resourceAccessService;
 
     @GetMapping
     public Collection<PackageAccess> getPackageAccess(@PathVariable String clientOrAdapterName) {
@@ -29,7 +31,7 @@ public class AccessController {
 
     @GetMapping("/{component}")
     public Collection<ResourceAccess> getResourceAccess(@PathVariable String clientOrAdapterName, @PathVariable String component) {
-        return accessCache.getResourceAccessByComponent(component);
+        return resourceAccessService.getResourceAccess(clientOrAdapterName, component);
     }
 
     @GetMapping("/{component}/{resource}")

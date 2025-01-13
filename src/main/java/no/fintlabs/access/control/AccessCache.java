@@ -22,10 +22,6 @@ public class AccessCache {
         initializeCache();
     }
 
-    public Collection<ResourceAccess> getResourceAccessByComponent(String componentName) {
-        return resourceAccessMap.getOrDefault(componentName, new HashMap<>()).values();
-    }
-
     public Collection<FieldAccess> getFieldAccessByComponentAndResource(String componentName, String resource) {
         return resourceAccessMap.getOrDefault(componentName, new HashMap<>()).get(resource).fields();
     }
@@ -48,6 +44,7 @@ public class AccessCache {
     }
 
     private String createComponentName(Metamodel metamodel) {
+        //TODO: maybe change _ to - ?
         return "%s_%s".formatted(metamodel.domainName(), metamodel.packageName());
     }
 }
