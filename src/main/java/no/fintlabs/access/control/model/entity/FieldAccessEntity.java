@@ -17,6 +17,10 @@ public class FieldAccessEntity {
     @Column(name = "field_id", nullable = false)
     private Integer id;
 
+    @NotNull
+    @Column(name = "resource_id", nullable = false)
+    private Integer resourceId;
+
     @Size(max = 255)
     @NotNull
     @Column(name = "field_name", nullable = false)

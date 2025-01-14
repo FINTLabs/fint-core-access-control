@@ -22,12 +22,14 @@ public class ResourceAccessService {
     private final ResourceAccessEntityRepository resourceAccessEntityRepository;
     private final PackageAccessEntityRepository packageAccessEntityRepository;
     private final MetamodelRepository metamodelRepository;
+    private final FieldAccessService fieldAccessService;
 
-    public ResourceAccessService(ClientEntityRepository clientEntityRepository, ResourceAccessEntityRepository resourceAccessEntityRepository, PackageAccessEntityRepository packageAccessEntityRepository, MetamodelRepository metamodelRepository) {
+    public ResourceAccessService(ClientEntityRepository clientEntityRepository, ResourceAccessEntityRepository resourceAccessEntityRepository, PackageAccessEntityRepository packageAccessEntityRepository, MetamodelRepository metamodelRepository, FieldAccessService fieldAccessService) {
         this.clientEntityRepository = clientEntityRepository;
         this.resourceAccessEntityRepository = resourceAccessEntityRepository;
         this.packageAccessEntityRepository = packageAccessEntityRepository;
         this.metamodelRepository = metamodelRepository;
+        this.fieldAccessService = fieldAccessService;
     }
 
     public Collection<ResourceAccess> getResourceAccess(String clientOrAdapterName, String component) {
@@ -45,7 +47,7 @@ public class ResourceAccessService {
                     .findFirst();
 
             String resourceName = metamodel.resourceName();
-            List<FieldAccess> fieldAccesses = getFieldAccess(metamodel);
+            List<FieldAccess> fieldAccesses = fieldAccessService.getFieldAccess(metamodel, resourceAccessEntity);
             ReadingOption readingOption = resourceAccessEntity.isPresent() && resourceAccessEntity.get().getHasReadAllAccess() ? ReadingOption.MULTIPLE : ReadingOption.SINGULAR;
             boolean enabled = (resourceAccessEntity.isPresent() && resourceAccessEntity.get().getHasAccess()) || (packageAccessEntity.isPresent() && packageAccessEntity.get().getHasFullaccess());
             boolean isWriteable = (packageAccessEntity.isPresent() && packageAccessEntity.get().getHasFullaccess()) || (resourceAccessEntity.isPresent() && resourceAccessEntity.get().getHasWriteAccess());
@@ -55,12 +57,6 @@ public class ResourceAccessService {
         }
 
         return result;
-    }
-
-    private List<FieldAccess> getFieldAccess(Metamodel metamodel) {
-        //TODO
-        // For each field in metamodel, create a FieldAccess
-        return Collections.emptyList();
     }
 
     private Optional<PackageAccessEntity> getAccessEntity(String component, Collection<PackageAccessEntity> packageAccessEntities) {

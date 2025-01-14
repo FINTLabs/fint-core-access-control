@@ -8,6 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Collection;
 
 public interface PackageAccessEntityRepository extends JpaRepository<PackageAccessEntity, Integer> {
-
     Collection<PackageAccessEntity> findByClient(@NotNull ClientEntity client);
 }
