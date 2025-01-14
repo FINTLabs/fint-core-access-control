@@ -34,29 +34,55 @@ public class ResourceAccessService {
 
     public Collection<ResourceAccess> getResourceAccess(String clientOrAdapterName, String component) {
         Optional<ClientEntity> client = clientEntityRepository.findById(clientOrAdapterName);
-        Collection<PackageAccessEntity> packageAccessEntities = client.isEmpty() ? Collections.emptyList() : packageAccessEntityRepository.findByClient(client.get());
-
+        Collection<PackageAccessEntity> packageAccessEntities = getPackageAccessEntities(client);
         Optional<PackageAccessEntity> packageAccessEntity = getAccessEntity(component, packageAccessEntities);
-
-        Collection<ResourceAccessEntity> resourceAccessEntities = packageAccessEntity.isEmpty() ? Collections.emptyList() : resourceAccessEntityRepository.findByPackageId(packageAccessEntity.get().getId());
-
+        Collection<ResourceAccessEntity> resourceAccessEntities = getResourceAccessEntities(packageAccessEntity);
         List<ResourceAccess> result = new ArrayList<>();
+
         for (Metamodel metamodel : metamodelRepository.getResourceAccessByComponent(component)) {
-            Optional<ResourceAccessEntity> resourceAccessEntity = resourceAccessEntities.stream()
-                    .filter(entity -> entity.getResourceName().equals(metamodel.resourceName()))
-                    .findFirst();
-
-            String resourceName = metamodel.resourceName();
-            List<FieldAccess> fieldAccesses = fieldAccessService.getFieldAccess(metamodel, resourceAccessEntity);
-            ReadingOption readingOption = resourceAccessEntity.isPresent() && resourceAccessEntity.get().getHasReadAllAccess() ? ReadingOption.MULTIPLE : ReadingOption.SINGULAR;
-            boolean enabled = (resourceAccessEntity.isPresent() && resourceAccessEntity.get().getHasAccess()) || (packageAccessEntity.isPresent() && packageAccessEntity.get().getHasFullaccess());
-            boolean isWriteable = (packageAccessEntity.isPresent() && packageAccessEntity.get().getHasFullaccess()) || (resourceAccessEntity.isPresent() && resourceAccessEntity.get().getHasWriteAccess());
-
-            ResourceAccess resourceAccess = new ResourceAccess(resourceName, fieldAccesses, readingOption, enabled, isWriteable);
-            result.add(resourceAccess);
+            result.add(createResourceAccess(metamodel, resourceAccessEntities));
         }
 
         return result;
+    }
+
+    private ResourceAccess createResourceAccess(Metamodel metamodel, Collection<ResourceAccessEntity> resourceAccessEntities) {
+        Optional<ResourceAccessEntity> resourceAccessEntity = getResourceAccessEntity(metamodel, resourceAccessEntities);
+        List<FieldAccess> fieldAccesses = fieldAccessService.getFieldAccess(metamodel, resourceAccessEntity);
+
+        if (resourceAccessEntity.isEmpty()) {
+            return new ResourceAccess(
+                    metamodel.resourceName(),
+                    fieldAccesses,
+                    ReadingOption.SINGULAR,
+                    false,
+                    false
+            );
+        }
+
+        return new ResourceAccess(
+                metamodel.resourceName(),
+                fieldAccesses,
+                resourceAccessEntity.get().getHasReadAllAccess() ? ReadingOption.MULTIPLE : ReadingOption.SINGULAR,
+                resourceAccessEntity.get().getHasAccess(),
+                resourceAccessEntity.get().getHasWriteAccess()
+        );
+    }
+
+    private static Optional<ResourceAccessEntity> getResourceAccessEntity(Metamodel metamodel, Collection<ResourceAccessEntity> resourceAccessEntities) {
+        return resourceAccessEntities.stream()
+                .filter(entity -> entity.getResourceName().equals(metamodel.resourceName()))
+                .findFirst();
+    }
+
+    private Collection<ResourceAccessEntity> getResourceAccessEntities(Optional<PackageAccessEntity> packageAccessEntity) {
+        if (packageAccessEntity.isEmpty()) return Collections.emptyList();
+        return resourceAccessEntityRepository.findByPackageId(packageAccessEntity.get().getId());
+    }
+
+    private Collection<PackageAccessEntity> getPackageAccessEntities(Optional<ClientEntity> client) {
+        if (client.isEmpty()) return Collections.emptyList();
+        return packageAccessEntityRepository.findByClient(client.get());
     }
 
     private Optional<PackageAccessEntity> getAccessEntity(String component, Collection<PackageAccessEntity> packageAccessEntities) {
@@ -65,7 +91,7 @@ public class ResourceAccessService {
                 return Optional.of(packageAccessEntity);
             }
         }
+
         return Optional.empty();
     }
-
 }
