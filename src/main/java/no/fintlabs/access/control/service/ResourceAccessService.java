@@ -87,7 +87,7 @@ public class ResourceAccessService {
 
     private Optional<PackageAccessEntity> getAccessEntity(String component, Collection<PackageAccessEntity> packageAccessEntities) {
         for (PackageAccessEntity packageAccessEntity : packageAccessEntities) {
-            if (component.equals(packageAccessEntity.getDomainName() + "_" + packageAccessEntity.getPackageName())) {
+            if (component.equals(packageAccessEntity.getDomainName() + "-" + packageAccessEntity.getPackageName())) {
                 return Optional.of(packageAccessEntity);
             }
         }
