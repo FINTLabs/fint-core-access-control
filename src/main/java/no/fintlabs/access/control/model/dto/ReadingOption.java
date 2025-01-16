@@ -1,4 +1,4 @@
-package no.fintlabs.access.control.model;
+package no.fintlabs.access.control.model.dto;
 
 public enum ReadingOption {
 

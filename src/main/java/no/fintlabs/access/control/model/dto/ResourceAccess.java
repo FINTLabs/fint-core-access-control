@@ -1,8 +1,9 @@
-package no.fintlabs.access.control.model;
+package no.fintlabs.access.control.model.dto;
+
 
 import java.util.List;
 
-public record ResourcesAccess(
+public record ResourceAccess(
         String name,
         List<FieldAccess> fields,
         ReadingOption readingOption,
