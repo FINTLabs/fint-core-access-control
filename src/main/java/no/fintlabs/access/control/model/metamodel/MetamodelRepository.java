@@ -1,13 +1,13 @@
 package no.fintlabs.access.control.model.metamodel;
 
 import lombok.Getter;
-import no.fintlabs.access.control.model.dto.FieldAccess;
-import no.fintlabs.access.control.model.dto.ResourceAccess;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.RestClient;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -44,9 +44,4 @@ public class MetamodelRepository {
                 .filter(metamodel -> componentName.equals(metamodel.domainName() + "_" + metamodel.packageName()))
                 .toList();
     }
-
-    //public Collection<FieldAccess> getFieldAccessByComponentAndResource(String componentName, String resource) {
-    //    return resourceAccessMap.getOrDefault(componentName, new HashMap<>()).get(resource).fields();
-    //}
-
 }
