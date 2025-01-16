@@ -1,7 +1,6 @@
 package no.fintlabs.access.control.controller;
 
 import lombok.RequiredArgsConstructor;
-import no.fintlabs.access.control.AccessCache;
 import no.fintlabs.access.control.service.PackageAccessService;
 import no.fintlabs.access.control.model.dto.FieldAccess;
 import no.fintlabs.access.control.model.dto.PackageAccess;
@@ -19,8 +18,6 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class AccessController {
 
-    private final AccessCache accessCache;
-
     private final PackageAccessService packageAccessService;
     private final ResourceAccessService resourceAccessService;
 
@@ -36,7 +33,10 @@ public class AccessController {
 
     @GetMapping("/{component}/{resource}")
     public Collection<FieldAccess> getFieldAccess(@PathVariable String clientOrAdapterName, @PathVariable String component, @PathVariable String resource) {
-        return accessCache.getFieldAccessByComponentAndResource(component, resource);
+        return resourceAccessService.getResourceAccess(clientOrAdapterName, component).stream()
+                .filter(resourceAccess -> resourceAccess.name().equals(resource))
+                .findFirst()
+                .map(ResourceAccess::fields)
+                .orElseThrow();
     }
-
 }
