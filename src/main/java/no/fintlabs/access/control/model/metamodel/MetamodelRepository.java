@@ -27,7 +27,7 @@ public class MetamodelRepository {
 
     public Set<Package> getPackages() {
         return metamodels.stream()
-                .map(model -> new Package(model.domainName(), model.packageName()))
+                .map(model -> new Package(model.domainName, model.packageName))
                 .collect(Collectors.toSet());
     }
 
@@ -41,7 +41,7 @@ public class MetamodelRepository {
 
     public Collection<Metamodel> getResourceAccessByComponent(String componentName) {
         return metamodels.stream()
-                .filter(metamodel -> componentName.equals(metamodel.domainName() + "_" + metamodel.packageName()))
+                .filter(metamodel -> componentName.equals(metamodel.domainName + "_" + metamodel.packageName))
                 .toList();
     }
 }
