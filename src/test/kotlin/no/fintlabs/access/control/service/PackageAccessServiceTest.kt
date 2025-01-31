@@ -104,7 +104,7 @@ internal class PackageAccessServiceTest {
         Mockito.`when`(packageAccessEntityRepository.findByClient(clientEntity))
             .thenReturn(listOf(createPackageAccessEntity("utdanning", "timeplan", false)))
         Mockito.`when`(metamodelRepository.packages).thenReturn(setOf(elevPackage, timeplanPackage))
-        Mockito.`when`(resourceAccessEntityRepository.findByPackageId(ArgumentMatchers.any()))
+        Mockito.`when`(resourceAccessEntityRepository.findByPackageId(ArgumentMatchers.anyInt()))
             .thenReturn(listOf(createResourceAccessEntity(true)))
 
         val result = packageAccessService.getPackageAccess(clientName)
@@ -112,23 +112,16 @@ internal class PackageAccessServiceTest {
         Assertions.assertEquals(2, result.size)
         for ((_, packageName, status) in result) {
             if (packageName == "timeplan") {
-                Assertions.assertEquals(
-                    Status.PARTIAL,
-                    status
-                )
+                Assertions.assertEquals(Status.PARTIAL, status)
             } else {
-                Assertions.assertEquals(
-                    Status.DISABLED,
-                    status
-                )
+                Assertions.assertEquals(Status.DISABLED, status)
             }
         }
 
         Mockito.verify(clientEntityRepository).findById(clientName)
         Mockito.verify(packageAccessEntityRepository).findByClient(clientEntity)
         Mockito.verify(metamodelRepository).packages
-        Mockito.verify(resourceAccessEntityRepository)
-            .findByPackageId(ArgumentMatchers.any())
+        Mockito.verify(resourceAccessEntityRepository).findByPackageId(ArgumentMatchers.anyInt())
     }
 
     private fun createPackageAccessEntity(

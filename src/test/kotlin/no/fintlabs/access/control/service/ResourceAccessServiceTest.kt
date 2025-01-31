@@ -54,7 +54,7 @@ internal class ResourceAccessServiceTest {
         val clientName = "test-client"
         val component = "test-component"
 
-        Mockito.`when`(clientEntityRepository.findById(clientName)).thenReturn(null)
+        Mockito.`when`(clientEntityRepository.findById(clientName)).thenReturn(Optional.empty())
 
         val result = resourceAccessService.getResourceAccess(clientName, component)
 
