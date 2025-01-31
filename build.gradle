@@ -1,10 +1,10 @@
 plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.4.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.25'
+    id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25'
+    id 'org.springframework.boot' version '3.4.2'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'com.github.ben-manes.versions' version '0.51.0'
     id 'se.patrikerdes.use-latest-versions' version '0.2.18'
-    id 'org.jetbrains.kotlin.jvm'
 }
 
 group = 'no.fintlabs'
@@ -39,12 +39,20 @@ dependencies {
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
     implementation 'org.postgresql:postgresql'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    //testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    //implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll '-Xjsr305=strict'
+    }
 }
 
 tasks.named('test') {
