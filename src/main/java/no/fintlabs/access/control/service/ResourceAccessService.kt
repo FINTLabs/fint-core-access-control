@@ -29,7 +29,7 @@ class ResourceAccessService(
         val result: MutableList<ResourceAccess> = ArrayList()
 
         for (metamodel in metamodelRepository.getResourceAccessByComponent(component)) {
-            result.add(createResourceAccess(metamodel, resourceAccessEntities!!))
+            result.add(createResourceAccess(metamodel, resourceAccessEntities))
         }
 
         return result

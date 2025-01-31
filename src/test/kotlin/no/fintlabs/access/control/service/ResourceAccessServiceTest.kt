@@ -17,26 +17,25 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import java.util.*
-import java.util.List
 
-internal class ResourceAccessServiceTest(
-    @Mock
-    private val clientEntityRepository: ClientEntityRepository,
+internal class ResourceAccessServiceTest {
 
     @Mock
-    private val resourceAccessEntityRepository: ResourceAccessEntityRepository,
+    lateinit var clientEntityRepository: ClientEntityRepository
 
     @Mock
-    private val packageAccessEntityRepository: PackageAccessEntityRepository,
+    lateinit var resourceAccessEntityRepository: ResourceAccessEntityRepository
 
     @Mock
-    private val metamodelRepository: MetamodelRepository,
+    lateinit var packageAccessEntityRepository: PackageAccessEntityRepository
 
     @Mock
-    private val fieldAccessService: FieldAccessService,
+    lateinit var metamodelRepository: MetamodelRepository
 
-    private var resourceAccessService: ResourceAccessService
-) {
+    @Mock
+    lateinit var fieldAccessService: FieldAccessService
+
+    lateinit var resourceAccessService: ResourceAccessService
 
     @BeforeEach
     fun setUp() {
@@ -50,116 +49,94 @@ internal class ResourceAccessServiceTest(
         )
     }
 
-    @get:Test
-    val resourceAccessWithNoClient: Unit
-        get() {
-            val clientName = "test-client"
-            val component = "test-component"
+    @Test
+    fun resourceAccessWithNoClient() {
+        val clientName = "test-client"
+        val component = "test-component"
 
-            Mockito.`when`(clientEntityRepository!!.findById(clientName))
-                .thenReturn(null)
+        Mockito.`when`(clientEntityRepository.findById(clientName)).thenReturn(null)
 
-            val result =
-                resourceAccessService!!.getResourceAccess(clientName, component)
+        val result = resourceAccessService.getResourceAccess(clientName, component)
 
-            Assertions.assertEquals(0, result.size)
-            Mockito.verify(clientEntityRepository).findById(clientName)
-            Mockito.verify(metamodelRepository).getResourceAccessByComponent(component)
-            Mockito.verifyNoInteractions(
-                resourceAccessEntityRepository,
-                packageAccessEntityRepository,
-                fieldAccessService
-            )
-        }
+        Assertions.assertEquals(0, result.size)
+        Mockito.verify(clientEntityRepository).findById(clientName)
+        Mockito.verify(metamodelRepository).getResourceAccessByComponent(component)
+        Mockito.verifyNoInteractions(
+            resourceAccessEntityRepository,
+            packageAccessEntityRepository,
+            fieldAccessService
+        )
+    }
 
-    @get:Test
-    val resourceAccessWithClientAndNoPackage: Unit
-        get() {
-            val clientName = "test-client"
-            val component = "test-component"
-            val clientEntity = ClientEntity()
+    @Test
+    fun resourceAccessWithClientAndNoPackage() {
+        val clientName = "test-client"
+        val component = "test-component"
+        val clientEntity = ClientEntity()
 
-            Mockito.`when`(clientEntityRepository!!.findById(clientName))
-                .thenReturn(Optional.of(clientEntity))
-            Mockito.`when`(
-                packageAccessEntityRepository!!.findByClient(
-                    clientEntity
-                )
-            ).thenReturn(emptyList<PackageAccessEntity>())
+        Mockito.`when`(clientEntityRepository.findById(clientName)).thenReturn(Optional.of(clientEntity))
+        Mockito.`when`(packageAccessEntityRepository.findByClient(clientEntity)).thenReturn(emptyList())
 
-            val result =
-                resourceAccessService!!.getResourceAccess(clientName, component)
+        val result = resourceAccessService.getResourceAccess(clientName, component)
 
-            Assertions.assertEquals(0, result.size)
-            Mockito.verify(metamodelRepository).getResourceAccessByComponent(component)
-            Mockito.verify(clientEntityRepository).findById(clientName)
-            Mockito.verify(packageAccessEntityRepository).findByClient(clientEntity)
-            Mockito.verifyNoInteractions(resourceAccessEntityRepository, fieldAccessService)
-        }
+        Assertions.assertEquals(0, result.size)
+        Mockito.verify(metamodelRepository).getResourceAccessByComponent(component)
+        Mockito.verify(clientEntityRepository).findById(clientName)
+        Mockito.verify(packageAccessEntityRepository).findByClient(clientEntity)
+        Mockito.verifyNoInteractions(resourceAccessEntityRepository, fieldAccessService)
+    }
 
-    @get:Test
-    val resourceAccessWithValidData: Unit
-        get() {
-            val clientName = "test-client"
-            val component = "test-component"
-            val clientEntity = ClientEntity()
+    @Test
+    fun resourceAccessWithValidData() {
+        val clientName = "test-client"
+        val component = "test-component"
+        val clientEntity = ClientEntity()
 
-            val packageAccessEntity = PackageAccessEntity(
-                id = 123,
-                domainName = "test",
-                packageName = "component",
-                client = ClientEntity()
-            )
+        val packageAccessEntity = PackageAccessEntity(
+            id = 123,
+            domainName = "test",
+            packageName = "component",
+            client = ClientEntity()
+        )
 
-            val resourceAccessEntity = ResourceAccessEntity(id = 321, resourceName = "elevforhold")
+        val resourceAccessEntity = ResourceAccessEntity(id = 321, resourceName = "elevforhold")
 
-            val metamodel =
-                Metamodel(
-                    "test",
-                    "component",
-                    "elevforhold",
-                    listOf("field1", "field2"),
-                    true
-                )
-
-            val resourceAccess = ResourceAccess(
+        val metamodel =
+            Metamodel(
+                "test",
+                "component",
                 "elevforhold",
-                listOf(),
-                ReadingOption.SINGULAR,
-                false,
-                false
+                listOf("field1", "field2"),
+                true
             )
 
-            Mockito.`when`(clientEntityRepository!!.findById(clientName))
-                .thenReturn(Optional.of(clientEntity))
-            Mockito.`when`(
-                packageAccessEntityRepository!!.findByClient(
-                    clientEntity
-                )
-            ).thenReturn(List.of(packageAccessEntity))
-            Mockito.`when`(
-                resourceAccessEntityRepository.findByPackageId(packageAccessEntity.id ?: 0)
-            )
-                .thenReturn(List.of(resourceAccessEntity))
-            Mockito.`when`(
-                metamodelRepository.getResourceAccessByComponent(component)
-            ).thenReturn(List.of(metamodel))
-            Mockito.`when`(
-                fieldAccessService.getFieldAccess(metamodel, resourceAccessEntity)
-            ).thenReturn(resourceAccess.fields)
+        val resourceAccess = ResourceAccess(
+            "elevforhold",
+            listOf(),
+            ReadingOption.SINGULAR,
+            false,
+            false
+        )
 
-            val result =
-                resourceAccessService.getResourceAccess(clientName, component)
+        Mockito.`when`(clientEntityRepository.findById(clientName)).thenReturn(Optional.of(clientEntity))
+        Mockito.`when`(packageAccessEntityRepository.findByClient(clientEntity)).thenReturn(listOf(packageAccessEntity))
+        Mockito.`when`(resourceAccessEntityRepository.findByPackageId(packageAccessEntity.id ?: 0))
+            .thenReturn(listOf(resourceAccessEntity))
+        Mockito.`when`(metamodelRepository.getResourceAccessByComponent(component)).thenReturn(listOf(metamodel))
+        Mockito.`when`(fieldAccessService.getFieldAccess(metamodel, resourceAccessEntity))
+            .thenReturn(resourceAccess.fields)
 
-            Assertions.assertEquals(1, result.size)
-            val resultAccess = result.iterator().next()
-            Assertions.assertEquals("elevforhold", resultAccess.name)
-            Assertions.assertEquals(ReadingOption.SINGULAR, resultAccess.readingOption)
+        val result = resourceAccessService.getResourceAccess(clientName, component)
 
-            Mockito.verify(clientEntityRepository).findById(clientName)
-            Mockito.verify(packageAccessEntityRepository).findByClient(clientEntity)
-            //verify(resourceAccessEntityRepository).findByPackageId(packageAccessEntity.getId());
-            Mockito.verify(metamodelRepository).getResourceAccessByComponent(component)
-            Mockito.verify(fieldAccessService).getFieldAccess(metamodel, resourceAccessEntity)
-        }
+        Assertions.assertEquals(1, result.size)
+        val resultAccess = result.iterator().next()
+        Assertions.assertEquals("elevforhold", resultAccess.name)
+        Assertions.assertEquals(ReadingOption.SINGULAR, resultAccess.readingOption)
+
+        Mockito.verify(clientEntityRepository).findById(clientName)
+        Mockito.verify(packageAccessEntityRepository).findByClient(clientEntity)
+        //verify(resourceAccessEntityRepository).findByPackageId(packageAccessEntity.getId());
+        Mockito.verify(metamodelRepository).getResourceAccessByComponent(component)
+        Mockito.verify(fieldAccessService).getFieldAccess(metamodel, resourceAccessEntity)
+    }
 }

@@ -14,10 +14,7 @@ class FieldAccessService(private val fieldAccessEntityRepository: FieldAccessEnt
         val fieldAccessEntities = getFieldAccessEntities(resourceAccessEntity)
 
         for (field in metamodel.fields) {
-            val fieldAccessEntity = getFieldAccessEntity(
-                field,
-                fieldAccessEntities!!
-            )
+            val fieldAccessEntity = getFieldAccessEntity(field, fieldAccessEntities)
 
             result.add(
                 FieldAccess(
@@ -31,7 +28,7 @@ class FieldAccessService(private val fieldAccessEntityRepository: FieldAccessEnt
         return result
     }
 
-    private fun getFieldAccessEntities(resourceAccessEntity: ResourceAccessEntity?): Collection<FieldAccessEntity?>? {
+    private fun getFieldAccessEntities(resourceAccessEntity: ResourceAccessEntity?): Collection<FieldAccessEntity> {
         val resourceId = resourceAccessEntity?.id ?: return emptyList()
         return fieldAccessEntityRepository.findByResourceId(resourceId)
     }

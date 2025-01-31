@@ -18,28 +18,27 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import java.util.*
-import java.util.List
-import java.util.Set
 import java.util.function.Consumer
 
-internal class PackageAccessServiceTest(
-    @Mock
-    private val clientEntityRepository: ClientEntityRepository,
+internal class PackageAccessServiceTest {
 
     @Mock
-    private val packageAccessEntityRepository: PackageAccessEntityRepository,
+    lateinit var clientEntityRepository: ClientEntityRepository
 
     @Mock
-    private val resourceAccessEntityRepository: ResourceAccessEntityRepository,
+    lateinit var packageAccessEntityRepository: PackageAccessEntityRepository
 
     @Mock
-    private val metamodelRepository: MetamodelRepository,
+    lateinit var resourceAccessEntityRepository: ResourceAccessEntityRepository
 
-    private var packageAccessService: PackageAccessService
-) {
+    @Mock
+    lateinit var metamodelRepository: MetamodelRepository
 
-    private val elevPackage = Package("utdanning", "elev")
-    private val timeplanPackage = Package("utdanning", "timeplan")
+    lateinit var packageAccessService: PackageAccessService
+
+    val elevPackage = Package("utdanning", "elev")
+
+    val timeplanPackage = Package("utdanning", "timeplan")
 
 
     @BeforeEach
@@ -53,111 +52,84 @@ internal class PackageAccessServiceTest(
         )
     }
 
-    @get:Test
-    val packageAccessWithNoAccess: Unit
-        get() {
-            val clientName = "test-client@fintlabs.no"
-            Mockito.`when`(clientEntityRepository!!.findById(clientName)).thenReturn(Optional.empty())
-            Mockito.`when`(
-                metamodelRepository!!.packages
-            ).thenReturn(Set.of(elevPackage, timeplanPackage))
+    @Test
+    fun packageAccessWithNoAccess() {
+        val clientName = "test-client@fintlabs.no"
+        Mockito.`when`(clientEntityRepository.findById(clientName)).thenReturn(Optional.empty())
+        Mockito.`when`(
+            metamodelRepository.packages
+        ).thenReturn(setOf(elevPackage, timeplanPackage))
 
-            val result = packageAccessService!!.getPackageAccess(clientName)
+        val result = packageAccessService.getPackageAccess(clientName)
 
-            Assertions.assertEquals(2, result.size)
-            result.forEach(Consumer { access: PackageAccess ->
+        Assertions.assertEquals(2, result.size)
+        result.forEach(Consumer { access: PackageAccess ->
+            Assertions.assertEquals(
+                Status.DISABLED,
+                access.status
+            )
+        })
+        Mockito.verify(clientEntityRepository).findById(clientName)
+        Mockito.verify(metamodelRepository).packages
+        Mockito.verifyNoInteractions(packageAccessEntityRepository, resourceAccessEntityRepository)
+    }
+
+    @Test
+    fun packageAccessWithFullAccess() {
+        val clientName = "test-client"
+        val clientEntity = ClientEntity()
+        Mockito.`when`(clientEntityRepository.findById(clientName)).thenReturn(Optional.of(clientEntity))
+        Mockito.`when`(packageAccessEntityRepository.findByClient(clientEntity)).thenReturn(
+            listOf(
+                createPackageAccessEntity("utdanning", "elev", true),
+                createPackageAccessEntity("utdanning", "timeplan", true)
+            )
+        )
+        Mockito.`when`(metamodelRepository.packages).thenReturn(setOf(elevPackage, timeplanPackage))
+
+        val result = packageAccessService.getPackageAccess(clientName)
+
+        Assertions.assertEquals(2, result.size)
+        result.forEach(Consumer { access: PackageAccess -> Assertions.assertEquals(Status.ENABLED, access.status) })
+        Mockito.verify(clientEntityRepository).findById(clientName)
+        Mockito.verify(packageAccessEntityRepository).findByClient(clientEntity)
+        Mockito.verify(metamodelRepository).packages
+    }
+
+    @Test
+    fun packageAccessWithPartialAccess() {
+        val clientName = "test-client"
+        val clientEntity = ClientEntity()
+        Mockito.`when`(clientEntityRepository.findById(clientName)).thenReturn(Optional.of(clientEntity))
+        Mockito.`when`(packageAccessEntityRepository.findByClient(clientEntity))
+            .thenReturn(listOf(createPackageAccessEntity("utdanning", "timeplan", false)))
+        Mockito.`when`(metamodelRepository.packages).thenReturn(setOf(elevPackage, timeplanPackage))
+        Mockito.`when`(resourceAccessEntityRepository.findByPackageId(ArgumentMatchers.any()))
+            .thenReturn(listOf(createResourceAccessEntity(true)))
+
+        val result = packageAccessService.getPackageAccess(clientName)
+
+        Assertions.assertEquals(2, result.size)
+        for ((_, packageName, status) in result) {
+            if (packageName == "timeplan") {
+                Assertions.assertEquals(
+                    Status.PARTIAL,
+                    status
+                )
+            } else {
                 Assertions.assertEquals(
                     Status.DISABLED,
-                    access.status
+                    status
                 )
-            })
-            Mockito.verify(clientEntityRepository).findById(clientName)
-            Mockito.verify(metamodelRepository).packages
-            Mockito.verifyNoInteractions(packageAccessEntityRepository, resourceAccessEntityRepository)
-        }
-
-    @get:Test
-    val packageAccessWithFullAccess: Unit
-        get() {
-            val clientName = "test-client"
-            val clientEntity = ClientEntity()
-            Mockito.`when`(clientEntityRepository!!.findById(clientName)).thenReturn(Optional.of(clientEntity))
-            Mockito.`when`(packageAccessEntityRepository!!.findByClient(clientEntity)).thenReturn(
-                List.of(
-                    createPackageAccessEntity("utdanning", "elev", true),
-                    createPackageAccessEntity("utdanning", "timeplan", true)
-                )
-            )
-            Mockito.`when`(
-                metamodelRepository!!.packages
-            ).thenReturn(Set.of(elevPackage, timeplanPackage))
-
-            val result = packageAccessService!!.getPackageAccess(clientName)
-
-            Assertions.assertEquals(2, result.size)
-            result.forEach(Consumer { access: PackageAccess -> Assertions.assertEquals(Status.ENABLED, access.status) })
-            Mockito.verify(clientEntityRepository).findById(clientName)
-            Mockito.verify(packageAccessEntityRepository).findByClient(clientEntity)
-            Mockito.verify(metamodelRepository).packages
-        }
-
-    @get:Test
-    val packageAccessWithPartialAccess: Unit
-        get() {
-            val clientName = "test-client"
-            val clientEntity = ClientEntity()
-            Mockito.`when`(clientEntityRepository!!.findById(clientName))
-                .thenReturn(Optional.of(clientEntity))
-            Mockito.`when`(
-                packageAccessEntityRepository!!.findByClient(
-                    clientEntity
-                )
-            ).thenReturn(
-                List.of(
-                    createPackageAccessEntity(
-                        "utdanning",
-                        "timeplan",
-                        false
-                    )
-                )
-            )
-            Mockito.`when`(
-                metamodelRepository!!.packages
-            ).thenReturn(
-                Set.of(
-                    elevPackage,
-                    timeplanPackage
-                )
-            )
-            Mockito.`when`(
-                resourceAccessEntityRepository!!.findByPackageId(
-                    ArgumentMatchers.any()
-                )
-            ).thenReturn(List.of(createResourceAccessEntity(true)))
-
-            val result = packageAccessService!!.getPackageAccess(clientName)
-
-            Assertions.assertEquals(2, result.size)
-            for ((_, packageName, status) in result) {
-                if (packageName == "timeplan") {
-                    Assertions.assertEquals(
-                        Status.PARTIAL,
-                        status
-                    )
-                } else {
-                    Assertions.assertEquals(
-                        Status.DISABLED,
-                        status
-                    )
-                }
             }
-
-            Mockito.verify(clientEntityRepository).findById(clientName)
-            Mockito.verify(packageAccessEntityRepository).findByClient(clientEntity)
-            Mockito.verify(metamodelRepository).packages
-            Mockito.verify(resourceAccessEntityRepository)
-                .findByPackageId(ArgumentMatchers.any())
         }
+
+        Mockito.verify(clientEntityRepository).findById(clientName)
+        Mockito.verify(packageAccessEntityRepository).findByClient(clientEntity)
+        Mockito.verify(metamodelRepository).packages
+        Mockito.verify(resourceAccessEntityRepository)
+            .findByPackageId(ArgumentMatchers.any())
+    }
 
     private fun createPackageAccessEntity(
         domainName: String,
